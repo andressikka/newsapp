@@ -7,7 +7,7 @@
 				<div class="card-body">
 					<h4 class="card-title">{{$article->Title}}</h4>
 					<p class="card-text">{{$article->Body}}</p>
-					<a href="#!" class="btn btn-primary">Open articl</a>
+					<a class="btn btn-primary" href="{{route('article', $article->id)}}">Open article</a>
 				</div>
 			</div>
 		@endforeach

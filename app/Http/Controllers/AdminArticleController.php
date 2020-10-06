@@ -8,6 +8,19 @@ use Illuminate\Support\Facades\DB;
 
 class AdminArticleController extends Controller
 {
+
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth:admin');
+    }
+
+
+
     /**
      * Display a listing of the resource.
      *
@@ -104,4 +117,6 @@ class AdminArticleController extends Controller
         // dd($adminArticle);
         return view('admin_view.articles_list', compact('articles'));
     }
+
+    
 }

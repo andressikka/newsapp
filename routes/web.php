@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\AdminArticleController;
+use App\Http\Controllers\ArticleController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,18 +15,30 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', function () {
-    return view('admin_view.admin');
-});
-
-
-Route::resource('/admin', 'AdminArticleController');
+Route::get('/', 'ArticleController@fetchNews')->name('newsPage');
 
 // Route::get('/admin', 'AdminArticleController@index');
 // Route::post('/admin', 'AdminArticleController@store');
-Route::get('/news', 'ArticleController@fetchNews');
+// Route::get('/news', 'ArticleController@fetchNews');
 Route::get('/articles', 'AdminArticleController@fetchArticles');
+
+Route::get('/article/{id}', 'ArticleController@showArticle')->name('article');
+
 
 Auth::routes();
 
 Route::get('/home', 'HomeController@index')->name('home');
+
+Route::prefix('admin')->group(function()
+{
+    Route::get('/login', 'Auth\AdminLoginController@showLoginForm')->name('admin.login');
+    Route::post('/login', 'Auth\AdminLoginController@login')->name('admin.login.submit');
+
+    // Route::resource('/', 'AdminArticleController');
+});
+
+// нужно поставить в самый низ, иначе ларавел будет думать, что запросы на /admin/login будут выполнятся из AdminArticleController
+Route::resource('/admin', 'AdminArticleController');
+// Route::resources([
+//     'admin' => AdminArticleController::class
+// ]);

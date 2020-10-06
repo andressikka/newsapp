@@ -88,4 +88,15 @@ class ArticleController extends Controller
         $news = AdminArticle::all();
         return view('user_view.user', compact('news'));
     }
+
+    public function showArticle($id)
+    {
+        $article = AdminArticle::find($id);
+        // dd($article);
+        return view('user_view.user_article', compact('article'));
+    }
+    public function redirectBack()
+    {
+        return redirect()->back();
+    }
 }
