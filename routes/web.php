@@ -22,6 +22,7 @@ Route::get('/', 'ArticleController@fetchNews')->name('newsPage');
 // Route::get('/news', 'ArticleController@fetchNews');
 Route::get('/articles', 'AdminArticleController@fetchArticles');
 
+// Костыль
 Route::get('/article/{id}', 'ArticleController@showArticle')->name('article');
 
 
@@ -39,6 +40,7 @@ Route::prefix('admin')->group(function()
 
 // нужно поставить в самый низ, иначе ларавел будет думать, что запросы на /admin/login будут выполнятся из AdminArticleController
 Route::resource('/admin', 'AdminArticleController');
+Route::resource('/comment_section', 'CommentController');
 // Route::resources([
 //     'admin' => AdminArticleController::class
 // ]);
