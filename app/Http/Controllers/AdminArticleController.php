@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\AdminArticle;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class AdminArticleController extends Controller
 {
@@ -49,7 +50,12 @@ class AdminArticleController extends Controller
      */
     public function store(Request $request)
     {
-        AdminArticle::create($request->all());
+        // dd($request->Picture->getClientOriginalName());
+        $fileName = $request->Picture->getClientOriginalName();
+        $request->Picture->storeAs('images', $fileName, 'public');
+        AdminArticle::create(['Title' => $request->Title, 
+                                'Body' => $request->Body, 
+                                'Picture' => $fileName]);
         return redirect()->back();
     }
 
@@ -89,9 +95,21 @@ class AdminArticleController extends Controller
      */
     public function update(Request $request, $id)
     {
-        AdminArticle::where('id', $id)->update(['Title' => $request->Title, 'Body' => $request->Body]);
-        // $admArticle->update(['Title' => $request->Title,'Body' => $request->body]);
-
+        if($request->hasFile('Picture'))
+        {
+            if($request->Picture)
+            {
+                Storage::delete('/public/images/'.AdminArticle::find($id)->Picture);
+            }
+            $fileName = $request->Picture->getClientOriginalName();
+            $request->Picture->storeAs('images', $fileName, 'public');
+            AdminArticle::where('id', $id)->update(['Title' => $request->Title, 
+                                                    'Body' => $request->Body, 
+                                                    'Picture' => $fileName]);
+            return redirect()->back();
+        }
+        AdminArticle::where('id', $id)->update(['Title' => $request->Title, 
+                                                'Body' => $request->Body]);
         return redirect()->back();
     }
 
@@ -118,5 +136,8 @@ class AdminArticleController extends Controller
         return view('admin_view.articles_list', compact('articles'));
     }
 
-    
+    protected function deleteOldImage($image)
+    {
+        
+    }
 }

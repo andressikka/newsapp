@@ -17,6 +17,7 @@ class CreateAdminArticlesTable extends Migration
             $table->id();
             $table->string('Title');
             $table->longText('Body');
+            $table->string('Picture')->nullable();
             $table->timestamps();
         });
     }
