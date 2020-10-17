@@ -18,6 +18,8 @@ class CreateAdminArticlesTable extends Migration
             $table->string('Title');
             $table->longText('Body');
             $table->string('Picture')->nullable();
+            $table->boolean('Picture_existance')->nullable()->default(0);
+            $table->boolean('Article_hide')->nullable()->default(0);
             $table->timestamps();
         });
     }

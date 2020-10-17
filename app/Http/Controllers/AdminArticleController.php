@@ -51,12 +51,40 @@ class AdminArticleController extends Controller
     public function store(Request $request)
     {
         // dd($request->Picture->getClientOriginalName());
-        $fileName = $request->Picture->getClientOriginalName();
-        $request->Picture->storeAs('images', $fileName, 'public');
-        AdminArticle::create(['Title' => $request->Title, 
-                                'Body' => $request->Body, 
-                                'Picture' => $fileName]);
-        return redirect()->back();
+        if($request->hasFile('Picture'))
+        {
+            $this->createIsPictureFunction(true, $request);
+            return redirect()->back();
+        }
+        else{
+            $this->createIsPictureFunction(false, $request);
+            return redirect()->back();
+        }
+        
+    }
+
+    // This function compares wether request has picture or not
+    // hence we get the following create query:
+    public function createIsPictureFunction($state, $request)
+    {
+        if($state == true)
+        {
+            $fileName = $request->Picture->getClientOriginalName();
+            $request->Picture->storeAs('images', $fileName, 'public');
+            $hide = $request->has('Article_hide') ? true : false;
+            AdminArticle::create(['Title' => $request->Title, 
+                                    'Body' => $request->Body, 
+                                    'Picture' => $fileName,
+                                    'Picture_existance' => true,
+                                    'Article_hide' => $hide]);
+        }
+        else if($state == false)
+        {
+            $hide = $request->has('Article_hide') ? true : false;
+            AdminArticle::create(['Title' => $request->Title, 
+                                    'Body' => $request->Body, 
+                                    'Article_hide' => $hide]);
+        }
     }
 
     /**
@@ -97,20 +125,56 @@ class AdminArticleController extends Controller
     {
         if($request->hasFile('Picture'))
         {
+            $this->editIsPictureFunction(true, $request, $id);
+            return redirect()->back();
+        }
+        else
+        {
+            $this->editIsPictureFunction(false, $request, $id);
+            return redirect()->back();
+        }
+
+        
+    }
+
+    // Function that checks for $state, similar to createIsPictureFunction
+    public function editIsPictureFunction($state, $request, $id)
+    {
+        if($state == true)
+        {
             if($request->Picture)
             {
                 Storage::delete('/public/images/'.AdminArticle::find($id)->Picture);
             }
+            $hide = $request->has('Article_hide') ? true : false;
             $fileName = $request->Picture->getClientOriginalName();
             $request->Picture->storeAs('images', $fileName, 'public');
             AdminArticle::where('id', $id)->update(['Title' => $request->Title, 
                                                     'Body' => $request->Body, 
-                                                    'Picture' => $fileName]);
-            return redirect()->back();
+                                                    'Picture' => $fileName,
+                                                    'Article_hide' => $hide]);
         }
-        AdminArticle::where('id', $id)->update(['Title' => $request->Title, 
-                                                'Body' => $request->Body]);
-        return redirect()->back();
+        elseif ($state == false)
+        {
+            $hide = $request->has('Article_hide') ? true : false;
+            $Picture_existance = $request->has('Picture_existance') ? true : false;
+            if($Picture_existance == false)
+            {    
+                Storage::delete('/public/images/'.AdminArticle::find($id)->Picture);   
+                AdminArticle::where('id', $id)->update(['Title' => $request->Title, 
+                                                        'Body' => $request->Body,
+                                                        'Picture' => null,
+                                                        'Article_hide' => $hide,
+                                                        'Picture_existance' => false]);
+            }
+        
+            else
+            {
+                AdminArticle::where('id', $id)->update(['Title' => $request->Title, 
+                                                        'Body' => $request->Body,
+                                                        'Article_hide' => $hide]);   
+            }
+        }
     }
 
     /**

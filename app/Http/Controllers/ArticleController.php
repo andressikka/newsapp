@@ -92,6 +92,16 @@ class ArticleController extends Controller
     public function showArticle($id)
     {
         $article = AdminArticle::find($id);
+        if(!$article)
+        {
+            return "This page does not exist";
+        }
+        
+        if($article->Article_hide == true)
+        {
+            return "This page is unavailable";
+        }
+
         // dd($article);
         return view('user_view.user_article', compact('article'));
     }

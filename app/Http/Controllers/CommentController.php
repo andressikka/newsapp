@@ -48,7 +48,7 @@ class CommentController extends Controller
     public function show($id)
     {
         $articleId = $id;
-        // $comments = UsersComments::where('FK_Article_Id', $id)->sortBy('FK_Article_Id');
+
         $comments = UsersComments::where('FK_Article_Id', $id)->get();
         // dd($comments);
         return view('user_view.comment_page', compact('articleId', 'comments'));
