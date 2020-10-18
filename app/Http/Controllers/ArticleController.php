@@ -95,11 +95,13 @@ class ArticleController extends Controller
         if(!$article)
         {
             return "This page does not exist";
+            // return $this->fetchNews();
         }
-        
+
         if($article->Article_hide == true)
         {
             return "This page is unavailable";
+            // return $this->fetchNews();
         }
 
         // dd($article);
