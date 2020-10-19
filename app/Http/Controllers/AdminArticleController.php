@@ -51,6 +51,7 @@ class AdminArticleController extends Controller
     public function store(Request $request)
     {
         // dd($request->Picture->getClientOriginalName());
+        // ПЕРЕДЕЛАТЬ НАХУЙ ТУТ 1 ФУНКЦИИ ДОСТАТОЧНО
         if($request->hasFile('Picture'))
         {
             $this->createIsPictureFunction(true, $request);
@@ -152,13 +153,15 @@ class AdminArticleController extends Controller
             AdminArticle::where('id', $id)->update(['Title' => $request->Title, 
                                                     'Body' => $request->Body, 
                                                     'Picture' => $fileName,
-                                                    'Article_hide' => $hide]);
+                                                    'Article_hide' => $hide,
+                                                    'Picture_existance' => true]);
         }
         elseif ($state == false)
         {
             $hide = $request->has('Article_hide') ? true : false;
             $Picture_existance = $request->has('Picture_existance') ? true : false;
-            if($Picture_existance == false)
+            // dd($Picture_existance);
+            if($Picture_existance == true)
             {    
                 Storage::delete('/public/images/'.AdminArticle::find($id)->Picture);   
                 AdminArticle::where('id', $id)->update(['Title' => $request->Title, 
@@ -194,7 +197,8 @@ class AdminArticleController extends Controller
     public function fetchArticles()
     {
         // $articles = DB::table('admin_articles')->pluck('Title');
-        $articles = AdminArticle::all();
+        $articles = AdminArticle::all()->sortByDesc('created_at');
+        // $articles = AdminArticle::all()->orderby('created_at', 'asc')->get();
         // dd($articles);
         // dd($adminArticle);
         return view('admin_view.articles_list', compact('articles'));

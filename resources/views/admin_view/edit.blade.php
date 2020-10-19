@@ -14,15 +14,14 @@
 		<input class="btn btn-secondary" type="submit" value="Edit the article">
 		<input class="btn btn-primary" name="Picture" type="file">
 		@if($article->Article_hide == true)
-		<input type="checkbox" name="Article_hide" checked="true">Hide Article
+			<input type="checkbox" name="Article_hide" checked="true">Hide Article
 		@else
-		<input type="checkbox" name="Article_hide">Hide Article
+			<input type="checkbox" name="Article_hide">Hide Article
 		@endif
-		@if($article->Picture_existance == true)
-		<input type="checkbox" name="Picture_existance" checked="true">Delete picture
-		asd
+		@if($article->Picture_existance == false)
+
 		@else
-		<input type="checkbox" name="Picture_existance">Delete picture
+			<input type="checkbox" name="Picture_existance">Delete picture
 		@endif
 	</form>
 </div>

@@ -85,7 +85,9 @@ class ArticleController extends Controller
 
     public function fetchNews()
     {
-        $news = AdminArticle::all();
+        // $news = AdminArticle::all();
+        $news = AdminArticle::all()->sortByDesc('created_at');
+
         return view('user_view.user', compact('news'));
     }
 
