@@ -50,18 +50,8 @@ class AdminArticleController extends Controller
      */
     public function store(Request $request)
     {
-        // dd($request->Picture->getClientOriginalName());
-        // ПЕРЕДЕЛАТЬ НАХУЙ ТУТ 1 ФУНКЦИИ ДОСТАТОЧНО
-        if($request->hasFile('Picture'))
-        {
-            $this->createIsPictureFunction(true, $request);
-            return redirect()->back();
-        }
-        else{
-            $this->createIsPictureFunction(false, $request);
-            return redirect()->back();
-        }
-        
+        $this->createIsPictureFunction($request->hasFile('Picture'), $request);
+        return redirect()->back();
     }
 
     // This function compares wether request has picture or not
@@ -204,8 +194,16 @@ class AdminArticleController extends Controller
         return view('admin_view.articles_list', compact('articles'));
     }
 
+    public function showHiddenArticles()
+    {
+        $hiddenArticles = AdminArticle::where('Article_hide', 1)->get();
+        // dd($hiddenArticles);
+        return view('admin_view.hidden_articles', compact('hiddenArticles'));
+    }
+
     protected function deleteOldImage($image)
     {
         
     }
+
 }
