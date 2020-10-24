@@ -114,61 +114,52 @@ class AdminArticleController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if($request->hasFile('Picture'))
-        {
-            $this->editIsPictureFunction(true, $request, $id);
-            return redirect()->back();
-        }
-        else
-        {
-            $this->editIsPictureFunction(false, $request, $id);
-            return redirect()->back();
-        }
-
+        $this->editIsPictureFunction($request->hasFile('Picture'), $request, $id);
+        return redirect()->back();
         
     }
 
     // Function that checks for $state, similar to createIsPictureFunction
     public function editIsPictureFunction($state, $request, $id)
     {
-        if($state == true)
+        $hide = $request->has('Article_hide') ? true : false;
+        if($state == false)
         {
-            if($request->Picture)
-            {
-                Storage::delete('/public/images/'.AdminArticle::find($id)->Picture);
-            }
-            $hide = $request->has('Article_hide') ? true : false;
-            $fileName = $request->Picture->getClientOriginalName();
-            $request->Picture->storeAs('images', $fileName, 'public');
-            AdminArticle::where('id', $id)->update(['Title' => $request->Title, 
-                                                    'Body' => $request->Body, 
-                                                    'Picture' => $fileName,
-                                                    'Article_hide' => $hide,
-                                                    'Picture_existance' => true]);
-        }
-        elseif ($state == false)
-        {
-            $hide = $request->has('Article_hide') ? true : false;
             $Picture_existance = $request->has('Picture_existance') ? true : false;
-            // dd($Picture_existance);
             if($Picture_existance == true)
-            {    
+            {
                 Storage::delete('/public/images/'.AdminArticle::find($id)->Picture);   
                 AdminArticle::where('id', $id)->update(['Title' => $request->Title, 
                                                         'Body' => $request->Body,
                                                         'Picture' => null,
                                                         'Article_hide' => $hide,
                                                         'Picture_existance' => false]);
+                return;
             }
-        
             else
             {
                 AdminArticle::where('id', $id)->update(['Title' => $request->Title, 
-                                                        'Body' => $request->Body,
-                                                        'Article_hide' => $hide]);   
+                                                                'Body' => $request->Body,
+                                                                'Article_hide' => $hide,                                                   
+                                                                ]);  
+                return;
             }
         }
+
+        if($request->Picture)
+        {
+            Storage::delete('/public/images/'.AdminArticle::find($id)->Picture);
+        }
+        $fileName = $request->Picture->getClientOriginalName();
+        $request->Picture->storeAs('images', $fileName, 'public');
+        AdminArticle::where('id', $id)->update(['Title' => $request->Title, 
+                                                'Body' => $request->Body, 
+                                                'Article_hide' => $hide,
+                                                'Picture' => ($request->Picture) ? $fileName : null,
+                                                'Picture_existance' => $state]);
     }
+
+
 
     /**
      * Remove the specified resource from storage.
@@ -200,10 +191,4 @@ class AdminArticleController extends Controller
         // dd($hiddenArticles);
         return view('admin_view.hidden_articles', compact('hiddenArticles'));
     }
-
-    protected function deleteOldImage($image)
-    {
-        
-    }
-
 }
