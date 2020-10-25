@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\AdminArticle;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 
 class AdminArticleController extends Controller
@@ -54,18 +55,21 @@ class AdminArticleController extends Controller
         return redirect()->back();
     }
 
+
     // This function compares wether request has picture or not
     // hence we get the following create query:
     public function createIsPictureFunction($state, $request)
     {
         if($state == true)
         {
-            $fileName = $request->Picture->getClientOriginalName();
-            $request->Picture->storeAs('images', $fileName, 'public');
+            $fileName = explode( ".",$request->Picture->getClientOriginalName());
+            $pictureName = Hash::make($fileName[0]).".".$fileName[1];
+
+            $request->Picture->storeAs('images', $pictureName, 'public');
             $hide = $request->has('Article_hide') ? true : false;
             AdminArticle::create(['Title' => $request->Title, 
                                     'Body' => $request->Body, 
-                                    'Picture' => $fileName,
+                                    'Picture' => $pictureName,
                                     'Picture_existance' => true,
                                     'Article_hide' => $hide]);
         }
@@ -123,40 +127,48 @@ class AdminArticleController extends Controller
     public function editIsPictureFunction($state, $request, $id)
     {
         $hide = $request->has('Article_hide') ? true : false;
-        if($state == false)
+
+        if(!$request->Picture)
         {
-            $Picture_existance = $request->has('Picture_existance') ? true : false;
-            if($Picture_existance == true)
+            if($state == false)
             {
-                Storage::delete('/public/images/'.AdminArticle::find($id)->Picture);   
-                AdminArticle::where('id', $id)->update(['Title' => $request->Title, 
-                                                        'Body' => $request->Body,
-                                                        'Picture' => null,
-                                                        'Article_hide' => $hide,
-                                                        'Picture_existance' => false]);
-                return;
-            }
-            else
-            {
-                AdminArticle::where('id', $id)->update(['Title' => $request->Title, 
-                                                                'Body' => $request->Body,
-                                                                'Article_hide' => $hide,                                                   
-                                                                ]);  
-                return;
+                $Picture_existance = $request->has('Picture_existance') ? true : false;
+                if($Picture_existance == true)
+                {
+                    Storage::delete('/public/images/'.$id.AdminArticle::find($id)->Picture);   
+                    AdminArticle::where('id', $id)->update(['Title' => $request->Title, 
+                                                            'Body' => $request->Body,
+                                                            'Picture' => null,
+                                                            'Article_hide' => $hide,
+                                                            'Picture_existance' => false]);
+                    return;
+                }
+                else
+                {
+                    AdminArticle::where('id', $id)->update(['Title' => $request->Title, 
+                                                                    'Body' => $request->Body,
+                                                                    'Article_hide' => $hide,                                                   
+                                                                    ]);  
+                    return;
+                }
             }
         }
-
-        if($request->Picture)
+        else if($request->Picture)
         {
             Storage::delete('/public/images/'.AdminArticle::find($id)->Picture);
+
+            $fileName = explode( ".",$request->Picture->getClientOriginalName());
+            $pictureName = Hash::make($fileName[0]).".".$fileName[1];
+            // dd($pictureName);
+            $request->Picture->storeAs('images/'.$request->id, $pictureName, 'public');
+            AdminArticle::where('id', $id)->update(['Title' => $request->Title, 
+                                                    'Body' => $request->Body, 
+                                                    'Article_hide' => $hide,
+                                                    'Picture' => $pictureName,
+                                                    'Picture_existance' => $state]);
+
         }
-        $fileName = $request->Picture->getClientOriginalName();
-        $request->Picture->storeAs('images', $fileName, 'public');
-        AdminArticle::where('id', $id)->update(['Title' => $request->Title, 
-                                                'Body' => $request->Body, 
-                                                'Article_hide' => $hide,
-                                                'Picture' => ($request->Picture) ? $fileName : null,
-                                                'Picture_existance' => $state]);
+
     }
 
 
@@ -171,6 +183,7 @@ class AdminArticleController extends Controller
     public function destroy(Request $request, $id)
     {
         // dd($request);
+        Storage::delete('/public/images/'.AdminArticle::find($id)->Picture);
         DB::delete('delete from admin_articles where id = ?',[$id]);
         return redirect()->back();
     }
