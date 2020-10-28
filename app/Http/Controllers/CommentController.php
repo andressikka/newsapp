@@ -4,9 +4,25 @@ namespace App\Http\Controllers;
 
 use App\UsersComments;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class CommentController extends Controller
 {
+    /**
+     * Create a new controller instance.
+     *
+     * @return void
+     */
+    // public function __construct()
+    // {
+    //     if(Auth::guard('admin')->check())
+    //     {
+    //         $this->middleware('auth:admin');
+    //     }
+    // }
+
+
+
     /**
      * Display a listing of the resource.
      *
@@ -85,6 +101,8 @@ class CommentController extends Controller
      */
     public function destroy($id)
     {
-        //
+        // dd($id);
+        UsersComments::where('id', $id)->delete();
+        return redirect()->back();
     }
 }

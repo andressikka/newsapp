@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminArticleController;
 use App\Http\Controllers\ArticleController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -27,7 +28,10 @@ Route::get('/admin/hidden_articles', 'AdminArticleController@showHiddenArticles'
 Route::get('/article/{id}', 'ArticleController@showArticle')->name('article');
 
 
-Auth::routes();
+Auth::routes([
+    'register' => false,
+    'reset' => false,
+]);
 
 Route::get('/home', 'HomeController@index')->name('home');
 

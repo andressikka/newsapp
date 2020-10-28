@@ -2,7 +2,7 @@
 
 @section('content')
 <div class="container">
-	<div class="row row row-cols-4">
+	<div class="row row-cols-4">
 		@foreach($news as $article)
 
 			@if($article->Article_hide == true)
